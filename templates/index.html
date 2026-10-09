@@ -1,0 +1,2022 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vettora | AI Interview Simulator</title>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Inter"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Marked.js for Markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- FontAwesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .chat-content pre {
+            background-color: #f1f5f9;
+            color: #0f172a;
+            border: 1px solid #e2e8f0;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 0.5rem 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+        }
+        .dark .chat-content pre {
+            background-color: #0f172a;
+            color: #f8fafc;
+            border-color: #334155;
+        }
+
+        .chat-content code {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: #f1f5f9;
+            color: #2563eb;
+            padding: 0.15rem 0.35rem;
+            border-radius: 0.25rem;
+            font-size: 0.875em;
+        }
+        .dark .chat-content code {
+            background-color: #1e293b;
+            color: #60a5fa;
+        }
+
+        .chat-content pre code {
+            background-color: transparent;
+            color: inherit;
+            padding: 0;
+        }
+
+        .chat-content p {
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
+        .chat-content p:last-child {
+            margin-bottom: 0;
+        }
+        .chat-content ul, .chat-content ol {
+            margin-left: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+        .chat-content ul { list-style-type: disc; }
+        .chat-content ol { list-style-type: decimal; }
+        .chat-content strong { font-weight: 600; }
+        
+        .chat-content h1, .chat-content h2, .chat-content h3 {
+            font-weight: 600;
+            margin-top: 0.75rem;
+            margin-bottom: 0.35rem;
+        }
+        .chat-content h2 { font-size: 1.1rem; }
+        .chat-content h3 { font-size: 1rem; }
+
+        .chat-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0.85rem 0;
+            font-size: 0.825rem;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+        .dark .chat-content table {
+            border-color: #334155;
+        }
+        .chat-content th {
+            background-color: #f8fafc;
+            color: #0f172a;
+            font-weight: 600;
+            padding: 0.6rem 0.85rem;
+            text-align: left;
+            border: 1px solid #e2e8f0;
+        }
+        .dark .chat-content th {
+            background-color: #1e293b;
+            color: #f8fafc;
+            border-color: #334155;
+        }
+        .chat-content td {
+            padding: 0.5rem 0.85rem;
+            border: 1px solid #e2e8f0;
+            vertical-align: top;
+        }
+        .dark .chat-content td {
+            border-color: #334155;
+        }
+        .chat-content tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+        .dark .chat-content tr:nth-child(even) {
+            background-color: #0f172a;
+        }
+        .chat-content blockquote {
+            border-left: 3.5px solid #3b82f6;
+            background-color: #eff6ff;
+            color: #1e3a8a;
+            padding: 0.6rem 0.9rem;
+            margin: 0.75rem 0;
+            border-radius: 0 0.5rem 0.5rem 0;
+            font-style: italic;
+        }
+        .dark .chat-content blockquote {
+            background-color: #1e293b;
+            color: #93c5fd;
+            border-color: #60a5fa;
+        }
+        .chat-content hr {
+            border: 0;
+            border-top: 1px solid #e2e8f0;
+            margin: 1.25rem 0;
+        }
+        .dark .chat-content hr {
+            border-color: #334155;
+        }
+
+        /* Subtle typing animation */
+        .typing-dot {
+            animation: pulse-dot 1.2s infinite ease-in-out both;
+        }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes pulse-dot {
+            0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
+            40% { opacity: 1; transform: scale(1.1); }
+        }
+
+        /* Clean scrollbar */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        .dark ::-webkit-scrollbar-thumb { background: #475569; }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200">
+
+    <!-- ChatGPT-style History Sliding Drawer Backdrop -->
+    <div
+        id="historyDrawerBackdrop"
+        onclick="toggleHistorySidebar()"
+        class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-40 transition-opacity"
+    ></div>
+
+    <!-- ChatGPT-style History Sliding Drawer -->
+    <aside
+        id="historyDrawer"
+        class="fixed top-0 left-0 bottom-0 w-80 sm:w-96 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 z-50 transform -translate-x-full transition-transform duration-300 flex flex-col shadow-2xl"
+    >
+        <!-- Drawer Header -->
+        <div class="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+            <div class="flex items-center space-x-2.5">
+                <div class="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-xs">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-sm text-slate-900 dark:text-white">Interview History</h3>
+                    <p class="text-[11px] text-slate-500">Past sessions &amp; scorecards</p>
+                </div>
+            </div>
+            <button
+                onclick="toggleHistorySidebar()"
+                class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+                title="Close History"
+            >
+                <i class="fa-solid fa-xmark text-sm"></i>
+            </button>
+        </div>
+
+        <!-- Action Bar: New Interview button -->
+        <div class="p-3 border-b border-slate-100 dark:border-slate-800">
+            <button
+                onclick="startNewInterviewPrompt()"
+                class="w-full py-2.5 px-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold flex items-center justify-center space-x-2 transition shadow-sm"
+            >
+                <i class="fa-solid fa-plus text-xs"></i>
+                <span>New Interview Session</span>
+            </button>
+        </div>
+
+        <!-- Sessions List (Scrollable) -->
+        <div class="flex-1 overflow-y-auto p-3 space-y-2" id="historySessionsList">
+            <div class="py-12 text-center text-xs text-slate-400">Loading sessions...</div>
+        </div>
+
+        <!-- Drawer Footer -->
+        <div class="p-3 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-400 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/50">
+            <span id="historySessionsSummary">0 sessions saved</span>
+            <button
+                onclick="fetchHistorySessions()"
+                class="text-blue-600 dark:text-blue-400 hover:underline flex items-center space-x-1"
+                title="Refresh sessions list"
+            >
+                <i class="fa-solid fa-rotate-right text-[10px]"></i>
+                <span>Refresh</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Top Navigation Header -->
+    <header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-5 py-3.5 flex items-center justify-between sticky top-0 z-30">
+        <div class="flex items-center space-x-3">
+            <button
+                onclick="toggleHistorySidebar()"
+                class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition flex items-center justify-center"
+                title="Open Interview History Sidebar"
+            >
+                <i class="fa-solid fa-bars text-sm"></i>
+            </button>
+            <div class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-sm">
+                <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+            <div>
+                <h1 class="text-base font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-1.5">
+                    <span>Vettora</span>
+                    <span class="text-xs font-normal text-slate-400 dark:text-slate-500">Interview</span>
+                </h1>
+                <p class="text-xs text-slate-500 dark:text-slate-400">OpenAI Agents SDK &bull; Grounded in Resume &amp; Job Description</p>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-3">
+            <!-- History Button -->
+            <button
+                id="historyToggleBtn"
+                onclick="toggleHistorySidebar()"
+                class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold rounded-lg transition flex items-center space-x-1.5 shadow-sm"
+                title="Interview History"
+            >
+                <i class="fa-solid fa-clock-rotate-left text-xs text-blue-600 dark:text-blue-400"></i>
+                <span class="hidden sm:inline">History</span>
+                <span id="historyCountBadge" class="hidden px-1.5 py-0.2 rounded-full bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 text-[10px] font-bold"></span>
+            </button>
+
+            <!-- Session Timer -->
+            <div class="flex items-center space-x-1.5 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg text-xs font-mono text-slate-600 dark:text-slate-300">
+                <i class="fa-regular fa-clock text-slate-400"></i>
+                <span id="interviewTimer">00:00</span>
+            </div>
+
+            <!-- Model Indicator -->
+            <div class="hidden sm:flex items-center space-x-1.5 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg text-xs text-slate-600 dark:text-slate-300">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                <span>Groq: <strong class="font-mono text-slate-800 dark:text-slate-200">{{ model_name }}</strong></span>
+            </div>
+
+            <!-- Dark / Light Mode Toggle Button -->
+            <button
+                onclick="toggleDarkMode()"
+                id="themeToggleBtn"
+                class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+                title="Toggle Dark / Light Theme"
+            >
+                <i id="themeToggleIcon" class="fa-solid fa-moon text-xs"></i>
+            </button>
+
+
+            <!-- Vettora Scorecard Button (Navbar) -->
+            <button
+                id="openScorecardNavBtn"
+                onclick="openScorecardModal()"
+                class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg transition flex items-center space-x-1.5 shadow-sm"
+            >
+                <i class="fa-solid fa-square-poll-vertical text-xs"></i>
+                <span>Scorecard</span>
+            </button>
+
+            <!-- New Session Button -->
+            <button
+                onclick="openSetupModal()"
+                class="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition flex items-center space-x-1.5"
+            >
+                <i class="fa-solid fa-sliders text-xs"></i>
+                <span>Configure Interview</span>
+            </button>
+
+            <!-- User Profile & Logout -->
+            <div class="flex items-center space-x-2 pl-2 border-l border-slate-200 dark:border-slate-800">
+                <div class="hidden md:flex items-center space-x-1.5 px-2.5 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg text-xs">
+                    <i class="fa-regular fa-user text-slate-400"></i>
+                    <span class="font-medium text-slate-700 dark:text-slate-300 max-w-[120px] truncate">{{ display_name }}</span>
+                </div>
+                <a
+                    href="{% url 'logout' %}"
+                    title="Log Out"
+                    class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-red-500 dark:hover:text-red-400 transition"
+                >
+                    <i class="fa-solid fa-arrow-right-from-bracket text-xs"></i>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-4 gap-5">
+
+        <!-- Left Sidebar: Candidate Info & Progress -->
+        <aside class="lg:col-span-1 flex flex-col space-y-4">
+            
+            <!-- Candidate Info Card -->
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-sm">
+                <div class="flex items-center space-x-3 mb-3">
+                    <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 flex items-center justify-center font-bold text-sm">
+                        <span id="candidateAvatar">C</span>
+                    </div>
+                    <div class="overflow-hidden">
+                        <h2 id="displayCandidateName" class="font-semibold text-slate-900 dark:text-white text-sm truncate">{{ display_name }}</h2>
+                        <span id="displayRole" class="text-xs text-blue-600 dark:text-blue-400 truncate block">Full Stack Engineer</span>
+                    </div>
+                </div>
+
+                <div class="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2 text-xs text-slate-500 dark:text-slate-400">
+                    <div class="flex justify-between">
+                        <span>Active Agent:</span>
+                        <span id="currentAgentBadge" class="font-medium text-slate-800 dark:text-slate-200 font-mono">InterviewerAgent</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Interview Status:</span>
+                        <span id="interviewStatusText" class="font-medium text-emerald-600 dark:text-emerald-400">In Progress</span>
+                    </div>
+                    <div class="flex justify-between items-center pt-2 border-t border-slate-100 dark:border-slate-800">
+                        <span>Resume Context:</span>
+                        <span id="sidebarResumeStatus" class="font-medium px-2 py-0.5 rounded text-[11px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">None</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span>Job Description:</span>
+                        <span id="sidebarJdStatus" class="font-medium px-2 py-0.5 rounded text-[11px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">None</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress & Scorecard Card -->
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-sm flex-1 flex flex-col">
+                <div class="flex items-center justify-between mb-2.5">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Questions Progress</h3>
+                    <span id="progressRatio" class="text-xs font-mono font-medium text-blue-600 dark:text-blue-400">0 / 4</span>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 mb-4 overflow-hidden">
+                    <div id="progressBar" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+
+                <!-- Live Score List -->
+                <div class="flex-1 overflow-y-auto space-y-2 max-h-56 lg:max-h-72 pr-1" id="scorecardList">
+                    <div id="emptyScorecardMsg" class="py-8 text-center text-xs text-slate-400">
+                        Evaluations will appear here as you answer questions.
+                    </div>
+                </div>
+
+                <!-- Conclude & Evaluate Button -->
+                <div class="pt-4 border-t border-slate-100 dark:border-slate-800 mt-auto space-y-2">
+                    <button
+                        id="sidebarScorecardBtn"
+                        onclick="openScorecardModal()"
+                        class="w-full py-2.5 px-3 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 rounded-lg text-xs font-semibold transition flex items-center justify-center space-x-1.5 hover:bg-emerald-100 dark:hover:bg-emerald-900"
+                    >
+                        <i class="fa-solid fa-square-poll-vertical text-xs"></i>
+                        <span>View Vettora Scorecard</span>
+                    </button>
+                    <button
+                        type="button"
+                        onclick="toggleHistorySidebar()"
+                        class="w-full py-2 px-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-medium transition flex items-center justify-center space-x-1.5"
+                    >
+                        <i class="fa-solid fa-clock-rotate-left text-xs text-blue-600 dark:text-blue-400"></i>
+                        <span>Past Sessions History</span>
+                    </button>
+                    <button
+                        id="finishBtn"
+                        onclick="finishInterview()"
+                        class="w-full py-2.5 px-3 bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white rounded-lg text-xs font-medium transition flex items-center justify-center space-x-1.5"
+                    >
+                        <i class="fa-solid fa-clipboard-check text-xs"></i>
+                        <span>End &amp; Get Final Evaluation</span>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Right Main Stage: Chat Interface -->
+        <section class="lg:col-span-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl flex flex-col h-[75vh] lg:h-[82vh] overflow-hidden shadow-sm">
+            
+            <!-- Chat Header -->
+            <div class="px-5 py-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/50">
+                <div class="flex items-center space-x-2 text-xs">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <span class="font-medium text-slate-700 dark:text-slate-300">Live Interview Session</span>
+                    <span class="text-slate-400">&bull;</span>
+                    <span id="chatContextSummary" class="text-slate-500 text-[11px]">Ready</span>
+                </div>
+                <span class="text-xs text-slate-400">Press Enter to send</span>
+            </div>
+
+            <!-- Messages Stream -->
+            <div id="messagesContainer" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+                <!-- Dynamically loaded messages -->
+            </div>
+
+            <!-- Typing Indicator -->
+            <div id="typingIndicator" class="hidden px-6 py-2">
+                <div class="inline-flex items-center space-x-2 text-xs text-slate-500 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-lg">
+                    <span id="typingAgentName">Interviewer is thinking</span>
+                    <div class="flex space-x-1 items-center">
+                        <span class="w-1.5 h-1.5 bg-slate-400 rounded-full typing-dot"></span>
+                        <span class="w-1.5 h-1.5 bg-slate-400 rounded-full typing-dot"></span>
+                        <span class="w-1.5 h-1.5 bg-slate-400 rounded-full typing-dot"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Suggestions Strip -->
+            <div id="quickSuggestionsStrip" class="px-4 py-2 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 flex items-center space-x-2 overflow-x-auto text-xs">
+                <span class="text-slate-400 font-medium text-[11px] whitespace-nowrap">Suggested:</span>
+                <button type="button" onclick="fillPrompt('Hello! I am ready to begin. Please ask the first question.')" class="px-2.5 py-1 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded text-slate-600 dark:text-slate-300 whitespace-nowrap text-[11px] transition">
+                    Ready to begin
+                </button>
+                <button type="button" onclick="fillPrompt('Could you please give me a brief example or clarify the scenario?')" class="px-2.5 py-1 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded text-slate-600 dark:text-slate-300 whitespace-nowrap text-[11px] transition">
+                    Ask for clarification
+                </button>
+                <button type="button" onclick="fillPrompt('I am done with my answers. Please provide my evaluation report.')" class="px-2.5 py-1 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded text-blue-600 dark:text-blue-400 whitespace-nowrap text-[11px] transition">
+                    Request evaluation
+                </button>
+                <button type="button" onclick="handleSkipQuestion()" class="px-2.5 py-1 bg-amber-50 dark:bg-amber-950/60 hover:bg-amber-100 dark:hover:bg-amber-900 border border-amber-200 dark:border-amber-800 rounded text-amber-700 dark:text-amber-300 whitespace-nowrap text-[11px] transition flex items-center space-x-1">
+                    <i class="fa-solid fa-forward-step text-[10px]"></i>
+                    <span>Skip Question</span>
+                </button>
+            </div>
+
+            <!-- Input Bar -->
+            <div class="p-3.5 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+                <form id="chatForm" onsubmit="handleSendMessage(event)" class="flex items-end space-x-2">
+                    <div class="flex-1">
+                        <textarea
+                            id="userInput"
+                            rows="2"
+                            placeholder="Type your response here..."
+                            class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3.5 py-2.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none transition"
+                            onkeydown="handleKeyDown(event)"
+                        ></textarea>
+                    </div>
+                    <button
+                        type="button"
+                        id="skipBtn"
+                        onclick="handleSkipQuestion()"
+                        title="Skip this question"
+                        class="h-10 px-3 bg-slate-100 hover:bg-amber-50 dark:bg-slate-800 dark:hover:bg-amber-950/50 border border-slate-200 dark:border-slate-700 hover:border-amber-300 text-slate-600 hover:text-amber-700 dark:text-slate-300 dark:hover:text-amber-300 rounded-lg text-sm font-medium transition flex items-center justify-center space-x-1.5 disabled:opacity-50"
+                    >
+                        <i class="fa-solid fa-forward-step text-xs"></i>
+                        <span class="hidden sm:inline">Skip</span>
+                    </button>
+                    <button
+                        type="submit"
+                        id="sendBtn"
+                        class="h-10 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition flex items-center justify-center space-x-1.5 disabled:opacity-50 shadow-sm"
+                    >
+                        <span>Send</span>
+                        <i class="fa-solid fa-paper-plane text-xs"></i>
+                    </button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <!-- Configure Interview Modal (With Resume Upload & Job Description) -->
+    <div id="setupModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-2xl w-full p-6 sm:p-7 shadow-2xl my-6">
+            <div class="flex items-center space-x-3 mb-5 pb-4 border-b border-slate-100 dark:border-slate-800">
+                <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-base">
+                    <i class="fa-solid fa-file-invoice"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-bold text-slate-900 dark:text-white">Configure Interview &amp; Context</h3>
+                    <p class="text-xs text-slate-500">Upload your resume and set the target job description to guide the interview</p>
+                </div>
+            </div>
+
+            <form onsubmit="handleStartInterview(event)" class="space-y-4">
+                <!-- Basic Info: Name & Target Role -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Candidate Name</label>
+                        <input
+                            type="text"
+                            id="modalCandidateName"
+                            value="{{ display_name|default:'Alex' }}"
+                            required
+                            class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3.5 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-blue-500"
+                        />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Target Job Role</label>
+                        <input
+                            type="text"
+                            id="modalTargetRole"
+                            value="Full Stack Software Engineer"
+                            required
+                            class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3.5 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-blue-500"
+                        />
+                    </div>
+                </div>
+
+                <!-- 1. RESUME UPLOAD SECTION -->
+                <div class="p-4 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl space-y-2.5">
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center space-x-1.5">
+                            <i class="fa-solid fa-file-arrow-up text-blue-600 dark:text-blue-400"></i>
+                            <span>Upload Resume (PDF, DOCX, TXT)</span>
+                        </label>
+                        <div class="flex items-center space-x-2">
+                            <span id="resumeStatusBadge" class="text-[11px] text-slate-500 font-medium">Optional</span>
+                            <button
+                                type="button"
+                                id="quickDetachBtn"
+                                onclick="detachResume()"
+                                class="hidden text-red-500 hover:text-red-700 dark:text-red-400 text-[11px] font-semibold items-center space-x-1 transition"
+                                title="Detach attached resume"
+                            >
+                                <i class="fa-solid fa-trash-can text-[10px]"></i>
+                                <span>Detach</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center space-x-3">
+                        <input
+                            type="file"
+                            id="resumeFileInput"
+                            accept=".pdf,.docx,.txt"
+                            onchange="handleResumeFileChange(event)"
+                            class="block w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer"
+                        />
+                    </div>
+
+                    <!-- Parsed resume preview (collapsible) -->
+                    <div id="resumePreviewContainer" class="hidden space-y-1.5 pt-2">
+                        <div class="flex justify-between items-center text-[11px]">
+                            <span class="text-emerald-600 dark:text-emerald-400 font-medium flex items-center space-x-1 truncate max-w-[260px]">
+                                <i class="fa-solid fa-check"></i>
+                                <span id="resumeParsedFileName">Resume text extracted</span>
+                            </span>
+                            <div class="flex items-center space-x-2.5">
+                                <button type="button" onclick="toggleResumePreview()" class="text-blue-600 dark:text-blue-400 hover:underline">
+                                    <span id="toggleResumePreviewText">View/Edit Extracted Text</span>
+                                </button>
+                                <button
+                                    type="button"
+                                    onclick="detachResume()"
+                                    class="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 font-medium flex items-center space-x-1 hover:underline"
+                                    title="Detach and remove attached resume"
+                                >
+                                    <i class="fa-solid fa-trash-can text-[10px]"></i>
+                                    <span>Detach Resume</span>
+                                </button>
+                            </div>
+                        </div>
+                        <textarea
+                            id="modalResumeText"
+                            rows="4"
+                            placeholder="Extracted resume text will appear here. You can also paste your resume text directly..."
+                            class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-xs text-slate-700 dark:text-slate-300 focus:outline-none focus:border-blue-500 font-mono"
+                        ></textarea>
+                    </div>
+                </div>
+
+                <!-- 2. JOB DESCRIPTION SELECTION & CUSTOMIZATION -->
+                <div class="p-4 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl space-y-2.5">
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center space-x-1.5">
+                            <i class="fa-solid fa-briefcase text-blue-600 dark:text-blue-400"></i>
+                            <span>Target Job Description (JD)</span>
+                        </label>
+                        <span id="jdStatusBadge" class="text-[11px] text-blue-600 font-semibold">Template Active</span>
+                    </div>
+
+                    <!-- Template Selector Dropdown -->
+                    <select
+                        id="jdTemplateSelect"
+                        onchange="handleJdTemplateChange(event)"
+                        class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:border-blue-500"
+                    >
+                        <option value="custom">-- Custom Job Description (Write or Paste Below) --</option>
+                        <option value="Full Stack Software Engineer" selected>Template: Full Stack Software Engineer</option>
+                        <option value="Backend Python / Django Developer">Template: Backend Python / Django Developer</option>
+                        <option value="Frontend React / Next.js Engineer">Template: Frontend React / Next.js Engineer</option>
+                        <option value="AI & Machine Learning Engineer">Template: AI & Machine Learning Engineer</option>
+                        <option value="Cloud Architect & DevOps Engineer">Template: Cloud Architect & DevOps Engineer</option>
+                    </select>
+
+                    <!-- Job Description Textarea -->
+                    <textarea
+                        id="modalJobDescription"
+                        rows="4"
+                        placeholder="Paste or write custom requirements, tech stack, and responsibilities for this job..."
+                        class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-2.5 text-xs text-slate-700 dark:text-slate-300 focus:outline-none focus:border-blue-500 font-mono"
+                    ></textarea>
+                </div>
+
+                <!-- 3. QUESTION COUNT SLIDER -->
+                <div class="pt-1">
+                    <div class="flex justify-between items-center mb-1.5">
+                        <label class="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Number of Interview Questions</label>
+                        <span id="questionsCountDisplay" class="text-xs font-mono font-bold text-blue-600 dark:text-blue-400">4 Questions</span>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <input
+                            type="range"
+                            id="modalNumQuestions"
+                            min="2"
+                            max="6"
+                            value="4"
+                            class="flex-1 accent-blue-600 cursor-pointer"
+                            oninput="document.getElementById('questionsCountDisplay').innerText = this.value + ' Questions'"
+                        />
+                    </div>
+                </div>
+
+                <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex space-x-3">
+                    <button
+                        type="button"
+                        onclick="closeSetupModal()"
+                        class="flex-1 py-2 px-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-medium transition"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="submit"
+                        id="startModalBtn"
+                        class="flex-1 py-2 px-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium transition flex items-center justify-center space-x-2"
+                    >
+                        <i class="fa-solid fa-play text-xs"></i>
+                        <span>Start Grounded Interview</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Vettora Official Scorecard Modal -->
+    <div id="scorecardModal" style="display: none;" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-4xl w-full p-6 sm:p-8 shadow-2xl my-6 flex flex-col space-y-6 max-h-[92vh] overflow-y-auto">
+            
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-base shadow-sm">
+                        <i class="fa-solid fa-square-poll-vertical"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 class="text-lg font-bold text-slate-900 dark:text-white">Vettora Assessment Scorecard</h3>
+                            <span class="text-xs px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 font-semibold">Official AI Debrief</span>
+                        </div>
+                        <p class="text-xs text-slate-500">Evaluated against Resume Projects and Target Job Description Requirements</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button
+                        onclick="copyScorecardSummary()"
+                        class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-medium flex items-center gap-1.5 transition"
+                        title="Copy Summary"
+                    >
+                        <i class="fa-regular fa-copy"></i>
+                        <span class="hidden sm:inline">Copy</span>
+                    </button>
+                    <button
+                        onclick="window.print()"
+                        class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-medium flex items-center gap-1.5 transition"
+                        title="Print / Save PDF"
+                    >
+                        <i class="fa-solid fa-print"></i>
+                        <span class="hidden sm:inline">Print</span>
+                    </button>
+                    <button
+                        onclick="closeScorecardModal()"
+                        class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition"
+                        title="Close"
+                    >
+                        <i class="fa-solid fa-xmark text-sm"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Top Highlights Banner: Candidate Card + Verdict Badge + Overall Score Gauge -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+                <!-- Candidate Info -->
+                <div class="flex items-center space-x-3.5">
+                    <div class="w-12 h-12 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-base shadow-sm">
+                        <span id="scorecardAvatar">C</span>
+                    </div>
+                    <div>
+                        <h4 id="scorecardCandidateName" class="font-bold text-slate-900 dark:text-white text-base">Candidate</h4>
+                        <p id="scorecardTargetRole" class="text-xs text-blue-600 dark:text-blue-400 font-medium">Software Engineer</p>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Comprehensive AI Evaluation</p>
+                    </div>
+                </div>
+
+                <!-- Hiring Verdict Badge -->
+                <div class="flex flex-col items-center justify-center p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-center">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Hiring Recommendation</span>
+                    <span id="scorecardVerdictBadge" class="text-sm font-extrabold px-3 py-1 rounded-full bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                        --
+                    </span>
+                </div>
+
+                <!-- Overall Score Gauge -->
+                <div class="flex flex-col items-center justify-center p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-center">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-0.5">Overall Rating</span>
+                    <div class="flex items-baseline space-x-1">
+                        <span id="scorecardOverallScore" class="text-2xl font-black text-slate-900 dark:text-white font-mono">0</span>
+                        <span class="text-xs text-slate-400 font-semibold">/ 100</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Competency Ratings Section -->
+            <div class="space-y-3">
+                <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                    <i class="fa-solid fa-chart-simple text-blue-600 dark:text-blue-400"></i>
+                    <span>Core Competencies Evaluation (0–100)</span>
+                </h4>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    <!-- Technical Mastery -->
+                    <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 space-y-1.5">
+                        <div class="flex justify-between text-xs">
+                            <span class="font-semibold text-slate-700 dark:text-slate-300">Technical Mastery</span>
+                            <span id="techScoreText" class="font-mono font-bold text-blue-600 dark:text-blue-400">0%</span>
+                        </div>
+                        <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
+                            <div id="techScoreBar" class="bg-blue-600 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- System Architecture -->
+                    <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 space-y-1.5">
+                        <div class="flex justify-between text-xs">
+                            <span class="font-semibold text-slate-700 dark:text-slate-300">System Architecture</span>
+                            <span id="archScoreText" class="font-mono font-bold text-indigo-600 dark:text-indigo-400">0%</span>
+                        </div>
+                        <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
+                            <div id="archScoreBar" class="bg-indigo-600 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Problem Solving -->
+                    <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 space-y-1.5">
+                        <div class="flex justify-between text-xs">
+                            <span class="font-semibold text-slate-700 dark:text-slate-300">Problem Solving &amp; Trade-offs</span>
+                            <span id="psScoreText" class="font-mono font-bold text-emerald-600 dark:text-emerald-400">0%</span>
+                        </div>
+                        <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
+                            <div id="psScoreBar" class="bg-emerald-600 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Communication -->
+                    <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 space-y-1.5">
+                        <div class="flex justify-between text-xs">
+                            <span class="font-semibold text-slate-700 dark:text-slate-300">Communication &amp; Structure</span>
+                            <span id="commScoreText" class="font-mono font-bold text-amber-600 dark:text-amber-400">0%</span>
+                        </div>
+                        <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
+                            <div id="commScoreBar" class="bg-amber-600 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Candidate Highlight Quote -->
+            <div id="scorecardQuoteSection" class="p-3.5 rounded-xl bg-blue-50/60 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900 flex items-start space-x-3">
+                <i class="fa-solid fa-quote-left text-blue-500 text-sm mt-0.5"></i>
+                <div class="text-xs text-blue-900 dark:text-blue-200 italic leading-relaxed" id="scorecardQuoteText">
+                    "Candidate articulated key trade-offs and demonstrated real-world experience."
+                </div>
+            </div>
+
+            <!-- Strong Moments & Growth Areas Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- Strengths -->
+                <div class="p-4 rounded-xl bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900 space-y-2">
+                    <h5 class="text-xs font-bold text-emerald-800 dark:text-emerald-300 flex items-center space-x-1.5">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <span>Strong Moments</span>
+                    </h5>
+                    <ul id="scorecardStrengthsList" class="text-xs text-slate-700 dark:text-slate-300 space-y-1.5 list-disc list-inside">
+                    </ul>
+                </div>
+
+                <!-- Growth Areas -->
+                <div class="p-4 rounded-xl bg-amber-50/60 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 space-y-2">
+                    <h5 class="text-xs font-bold text-amber-800 dark:text-amber-300 flex items-center space-x-1.5">
+                        <i class="fa-solid fa-arrow-trend-up"></i>
+                        <span>Growth Opportunities</span>
+                    </h5>
+                    <ul id="scorecardGrowthList" class="text-xs text-slate-700 dark:text-slate-300 space-y-1.5 list-disc list-inside">
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Executive Summary Section -->
+            <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 space-y-1.5">
+                <h5 class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Hiring Committee Synthesis</h5>
+                <p id="scorecardExecutiveSummary" class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed"></p>
+            </div>
+
+            <!-- Question Debrief & Benchmark Answers Section -->
+            <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h5 class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                            <i class="fa-solid fa-list-check text-blue-600 dark:text-blue-400"></i>
+                            <span>Question-by-Question Evaluation &amp; Right Answers</span>
+                        </h5>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Compare your responses against benchmark model answers and committee feedback.</p>
+                    </div>
+                    <button
+                        type="button"
+                        id="toggleAllAnswersBtn"
+                        onclick="toggleAllAnswersAccordion()"
+                        class="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1.5 px-2.5 py-1 rounded bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 transition cursor-pointer"
+                    >
+                        <i id="toggleAllAnswersIcon" class="fa-solid fa-angles-down text-[10px]"></i>
+                        <span id="toggleAllAnswersText">Expand All</span>
+                    </button>
+                </div>
+                <div id="scorecardQuestionsContainer" class="space-y-3">
+                    <!-- Populated dynamically with accordion question cards -->
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+                <button
+                    onclick="closeScorecardModal()"
+                    class="py-2 px-5 bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white rounded-lg text-xs font-medium transition"
+                >
+                    Close Scorecard
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Application Script -->
+    <script>
+        let candidateName = "{{ display_name|default:'Alex' }}";
+        let targetRole = "Full Stack Software Engineer";
+        let numQuestions = 4;
+        let isProcessing = false;
+        let timerInterval = null;
+        let secondsElapsed = 0;
+        let jobTemplates = {};
+
+        // Theme Toggle
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            const isDark = html.classList.toggle("dark");
+            html.classList.toggle("light", !isDark);
+            localStorage.setItem("simple_theme", isDark ? "dark" : "light");
+
+            const icon = document.getElementById("themeToggleIcon");
+            icon.className = isDark ? "fa-solid fa-sun text-xs text-amber-400" : "fa-solid fa-moon text-xs";
+        }
+
+        function initTheme() {
+            const savedTheme = localStorage.getItem("simple_theme") || "light";
+            const isDark = savedTheme === "dark";
+            document.documentElement.classList.toggle("dark", isDark);
+            document.documentElement.classList.toggle("light", !isDark);
+
+            const icon = document.getElementById("themeToggleIcon");
+            if (icon) {
+                icon.className = isDark ? "fa-solid fa-sun text-xs text-amber-400" : "fa-solid fa-moon text-xs";
+            }
+        }
+
+        // Timer
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            secondsElapsed = 0;
+            timerInterval = setInterval(() => {
+                secondsElapsed++;
+                const mins = String(Math.floor(secondsElapsed / 60)).padStart(2, "0");
+                const secs = String(secondsElapsed % 60).padStart(2, "0");
+                document.getElementById("interviewTimer").innerText = `${mins}:${secs}`;
+            }, 1000);
+        }
+        function stopTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+        }
+
+        // CSRF Token
+        function getCsrfToken() {
+            const cookies = document.cookie.split(";");
+            for (let cookie of cookies) {
+                const [name, val] = cookie.trim().split("=");
+                if (name === "csrftoken") return decodeURIComponent(val);
+            }
+            return "";
+        }
+
+        // Markdown Formatter
+        function renderMarkdown(rawText) {
+            if (!rawText) return "";
+            try {
+                return marked.parse(rawText);
+            } catch (e) {
+                return rawText.replace(/\n/g, "<br>");
+            }
+        }
+
+        function escapeHtml(text) {
+            if (!text) return "";
+            return String(text)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Modal Helpers
+        function openSetupModal() {
+            const modal = document.getElementById("setupModal");
+            if (modal) {
+                modal.classList.remove("hidden");
+                modal.style.display = "flex";
+            }
+        }
+        function closeSetupModal() {
+            const modal = document.getElementById("setupModal");
+            if (modal) {
+                modal.classList.add("hidden");
+                modal.style.display = "none";
+            }
+        }
+
+        let latestScorecard = null;
+        let latestRecords = [];
+
+        function openScorecardModal() {
+            if (latestScorecard) {
+                populateScorecardModal(latestScorecard, latestRecords);
+            } else {
+                populateScorecardModal({
+                    verdict: "PENDING",
+                    overall_score: 0,
+                    competencies: {
+                        technical_mastery: 0,
+                        system_architecture: 0,
+                        problem_solving: 0,
+                        communication: 0
+                    },
+                    executive_summary: "Interview in progress or not yet evaluated."
+                }, latestRecords);
+            }
+            const modal = document.getElementById("scorecardModal");
+            if (modal) {
+                modal.classList.remove("hidden");
+                modal.style.display = "flex";
+            }
+        }
+
+        function closeScorecardModal() {
+            const modal = document.getElementById("scorecardModal");
+            if (modal) {
+                modal.classList.add("hidden");
+                modal.style.display = "none";
+            }
+        }
+
+        // Skip Question Function
+        function handleSkipQuestion() {
+            if (isProcessing) return;
+            const input = document.getElementById("userInput");
+            input.value = "I would like to skip this question. Please move on to the next question.";
+            handleSendMessage();
+        }
+
+        // History Sidebar & Management
+        let isHistoryOpen = false;
+
+        function toggleHistorySidebar() {
+            const drawer = document.getElementById("historyDrawer");
+            const backdrop = document.getElementById("historyDrawerBackdrop");
+            if (!drawer) return;
+            isHistoryOpen = !isHistoryOpen;
+            if (isHistoryOpen) {
+                drawer.classList.remove("-translate-x-full");
+                if (backdrop) backdrop.classList.remove("hidden");
+                fetchHistorySessions();
+            } else {
+                drawer.classList.add("-translate-x-full");
+                if (backdrop) backdrop.classList.add("hidden");
+            }
+        }
+
+        function startNewInterviewPrompt() {
+            if (isHistoryOpen) toggleHistorySidebar();
+            openSetupModal();
+        }
+
+        async function fetchHistorySessions() {
+            const listEl = document.getElementById("historySessionsList");
+            const countBadge = document.getElementById("historyCountBadge");
+            const summaryEl = document.getElementById("historySessionsSummary");
+            try {
+                const res = await fetch("/api/history/");
+                const data = await res.json();
+                if (data.success && data.sessions) {
+                    renderHistorySessions(data.sessions);
+                    if (countBadge) {
+                        if (data.sessions.length > 0) {
+                            countBadge.innerText = data.sessions.length;
+                            countBadge.classList.remove("hidden");
+                        } else {
+                            countBadge.classList.add("hidden");
+                        }
+                    }
+                    if (summaryEl) {
+                        summaryEl.innerText = `${data.sessions.length} session${data.sessions.length === 1 ? '' : 's'} saved`;
+                    }
+                }
+            } catch (e) {
+                if (listEl) {
+                    listEl.innerHTML = `<div class="py-8 text-center text-xs text-red-400">Failed to load history</div>`;
+                }
+            }
+        }
+
+        function renderHistorySessions(sessions) {
+            const listEl = document.getElementById("historySessionsList");
+            if (!listEl) return;
+            if (!sessions || sessions.length === 0) {
+                listEl.innerHTML = `
+                    <div class="py-12 text-center text-xs text-slate-400">
+                        <i class="fa-solid fa-box-open text-2xl mb-2 text-slate-300 dark:text-slate-600 block"></i>
+                        No saved interview sessions yet.
+                    </div>
+                `;
+                return;
+            }
+
+            listEl.innerHTML = "";
+            sessions.forEach(s => {
+                const item = document.createElement("div");
+                const isActive = s.is_active;
+                item.className = `p-3 rounded-xl border transition cursor-pointer relative group flex flex-col space-y-1.5 ${
+                    isActive
+                        ? "bg-blue-50/80 dark:bg-blue-950/40 border-blue-400 dark:border-blue-600 shadow-sm"
+                        : "bg-slate-50/70 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
+                }`;
+
+                let badgeHtml = "";
+                if (s.status === "completed") {
+                    badgeHtml = `<span class="px-2 py-0.5 rounded text-[10px] font-bold ${
+                        (s.overall_score || 0) >= 70
+                            ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+                            : 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300'
+                    }">${s.verdict || 'Completed'} &bull; ${s.overall_score || 0}/100</span>`;
+                } else {
+                    badgeHtml = `<span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">In Progress</span>`;
+                }
+
+                item.innerHTML = `
+                    <div class="flex items-start justify-between gap-2">
+                        <h4 class="text-xs font-bold text-slate-900 dark:text-white truncate flex-1">${s.target_role}</h4>
+                        <button
+                            onclick="deleteHistorySession(event, ${s.id})"
+                            title="Delete session"
+                            class="opacity-0 group-hover:opacity-100 p-1 rounded text-slate-400 hover:text-red-500 hover:bg-white dark:hover:bg-slate-800 transition"
+                        >
+                            <i class="fa-regular fa-trash-can text-[11px]"></i>
+                        </button>
+                    </div>
+                    <div class="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
+                        <span>${s.candidate_name} &bull; ${s.total_planned_questions} Qs</span>
+                        <span class="flex items-center space-x-1"><i class="fa-regular fa-comments text-[9px]"></i><span>${s.message_count} msgs</span></span>
+                    </div>
+                    <div class="flex items-center justify-between pt-1 border-t border-slate-100 dark:border-slate-800/60">
+                        <span class="text-[10px] text-slate-400">${s.created_at}</span>
+                        ${badgeHtml}
+                    </div>
+                `;
+                item.onclick = (e) => {
+                    if (e.target.closest("button")) return;
+                    selectHistorySession(s.id);
+                };
+                listEl.appendChild(item);
+            });
+        }
+
+        async function selectHistorySession(sessionId) {
+            if (isProcessing) return;
+            try {
+                const res = await fetch(`/api/history/${sessionId}/switch/`, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": getCsrfToken()
+                    }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    candidateName = data.candidate_name;
+                    targetRole = data.target_role;
+                    numQuestions = data.num_questions;
+
+                    document.getElementById("displayCandidateName").innerText = candidateName;
+                    document.getElementById("candidateAvatar").innerText = (candidateName || "Candidate").charAt(0).toUpperCase();
+                    document.getElementById("displayRole").innerText = targetRole;
+
+                    document.getElementById("sidebarResumeStatus").innerText = data.resume_loaded ? "Attached" : "None";
+                    document.getElementById("sidebarResumeStatus").className = data.resume_loaded ? "font-medium px-2 py-0.5 rounded text-[11px] bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400" : "font-medium px-2 py-0.5 rounded text-[11px] bg-slate-100 dark:bg-slate-800 text-slate-400";
+
+                    document.getElementById("sidebarJdStatus").innerText = data.jd_loaded ? "Attached" : "None";
+                    document.getElementById("sidebarJdStatus").className = data.jd_loaded ? "font-medium px-2 py-0.5 rounded text-[11px] bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400" : "font-medium px-2 py-0.5 rounded text-[11px] bg-slate-100 dark:bg-slate-800 text-slate-400";
+
+                    document.getElementById("chatContextSummary").innerText = `${data.resume_loaded ? "Resume Loaded" : "No Resume"} | ${data.jd_loaded ? "JD Loaded" : "No JD"}`;
+
+                    // Clear and reload messages
+                    const container = document.getElementById("messagesContainer");
+                    container.innerHTML = "";
+                    if (data.messages && data.messages.length > 0) {
+                        data.messages.forEach(m => {
+                            appendMessage(m.sender, m.agent_name, m.text, m.is_evaluation || m.agent_name === "EvaluatorAgent");
+                        });
+                    }
+
+                    if (data.records) updateScorecard(data.records);
+                    if (data.scorecard && (data.is_completed || Object.keys(data.scorecard).length > 0)) {
+                        populateScorecardModal(data.scorecard, data.records);
+                    }
+
+                    const suggestionsStrip = document.getElementById("quickSuggestionsStrip");
+                    const skipBtn = document.getElementById("skipBtn");
+
+                    if (data.is_completed) {
+                        stopTimer();
+                        document.getElementById("interviewStatusText").innerText = "Completed";
+                        document.getElementById("interviewStatusText").className = "font-medium text-blue-600 dark:text-blue-400";
+                        if (suggestionsStrip) suggestionsStrip.classList.add("hidden");
+                        if (skipBtn) skipBtn.classList.add("hidden");
+                    } else {
+                        startTimer();
+                        document.getElementById("interviewStatusText").innerText = "In Progress";
+                        document.getElementById("interviewStatusText").className = "font-medium text-emerald-600 dark:text-emerald-400";
+                        if (suggestionsStrip) suggestionsStrip.classList.remove("hidden");
+                        if (skipBtn) {
+                            skipBtn.classList.remove("hidden");
+                            skipBtn.disabled = false;
+                        }
+                    }
+
+                    toggleHistorySidebar();
+                    fetchHistorySessions();
+                } else {
+                    alert("Could not load session: " + (data.error || "Unknown error"));
+                }
+            } catch (e) {
+                alert("Error loading session: " + e.message);
+            }
+        }
+
+        async function deleteHistorySession(event, sessionId) {
+            if (event) event.stopPropagation();
+            if (!confirm("Are you sure you want to delete this interview session history?")) return;
+            try {
+                const res = await fetch(`/api/history/${sessionId}/`, {
+                    method: "DELETE",
+                    headers: {
+                        "X-CSRFToken": getCsrfToken()
+                    }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    fetchHistorySessions();
+                } else {
+                    alert("Error deleting session: " + (data.error || "Unknown error"));
+                }
+            } catch (e) {
+                alert("Delete failed: " + e.message);
+            }
+        }
+
+        function populateScorecardModal(scorecard, records) {
+            if (!scorecard) return;
+            if (scorecard.verdict !== "PENDING") {
+                latestScorecard = scorecard;
+            }
+            if (records) latestRecords = records;
+
+            // Header info
+            document.getElementById("scorecardCandidateName").innerText = candidateName;
+            document.getElementById("scorecardTargetRole").innerText = targetRole;
+            document.getElementById("scorecardAvatar").innerText = (candidateName || "Candidate").charAt(0).toUpperCase();
+
+            // Overall Score
+            const score = scorecard.overall_score !== undefined ? scorecard.overall_score : 0;
+            document.getElementById("scorecardOverallScore").innerText = score;
+
+            // Verdict Badge
+            const verdict = (scorecard.verdict || (score > 0 ? "HIRE" : "NO HIRE")).toUpperCase();
+            const badge = document.getElementById("scorecardVerdictBadge");
+            badge.innerText = verdict;
+
+            if (verdict.includes("STRONG")) {
+                badge.className = "text-sm font-extrabold px-3.5 py-1 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700";
+            } else if (verdict.includes("NO") || verdict.includes("PASS") || verdict.includes("INCOMPLETE")) {
+                badge.className = "text-sm font-extrabold px-3.5 py-1 rounded-full bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 border border-rose-300 dark:border-rose-700";
+            } else if (verdict.includes("MAYBE")) {
+                badge.className = "text-sm font-extrabold px-3.5 py-1 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-300 dark:border-amber-700";
+            } else if (verdict.includes("PENDING")) {
+                badge.className = "text-sm font-extrabold px-3.5 py-1 rounded-full bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-300 dark:border-slate-700";
+            } else {
+                badge.className = "text-sm font-extrabold px-3.5 py-1 rounded-full bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300 border border-blue-300 dark:border-blue-700";
+            }
+
+            // Competencies
+            const comps = scorecard.competencies || {};
+            const tech = comps.technical_mastery !== undefined ? comps.technical_mastery : score;
+            const arch = comps.system_architecture !== undefined ? comps.system_architecture : score;
+            const ps = comps.problem_solving !== undefined ? comps.problem_solving : score;
+            const comm = comps.communication !== undefined ? comps.communication : score;
+
+            document.getElementById("techScoreText").innerText = `${tech}%`;
+            document.getElementById("techScoreBar").style.width = `${tech}%`;
+
+            document.getElementById("archScoreText").innerText = `${arch}%`;
+            document.getElementById("archScoreBar").style.width = `${arch}%`;
+
+            document.getElementById("psScoreText").innerText = `${ps}%`;
+            document.getElementById("psScoreBar").style.width = `${ps}%`;
+
+            document.getElementById("commScoreText").innerText = `${comm}%`;
+            document.getElementById("commScoreBar").style.width = `${comm}%`;
+
+            // Candidate Quote
+            const quoteEl = document.getElementById("scorecardQuoteText");
+            const quoteSection = document.getElementById("scorecardQuoteSection");
+            if (scorecard.key_quote && scorecard.key_quote.trim()) {
+                quoteEl.innerText = `"${scorecard.key_quote.trim()}"`;
+                quoteSection.classList.remove("hidden");
+            } else {
+                quoteSection.classList.add("hidden");
+            }
+
+            // Strong Moments
+            const strengthsList = document.getElementById("scorecardStrengthsList");
+            strengthsList.innerHTML = "";
+            const strengths = scorecard.strong_moments || [];
+            if (strengths.length > 0) {
+                strengths.forEach(s => {
+                    const li = document.createElement("li");
+                    li.innerText = s;
+                    strengthsList.appendChild(li);
+                });
+            } else {
+                strengthsList.innerHTML = "<li>Consistent answers matching technical requirements.</li>";
+            }
+
+            // Growth Areas
+            const growthList = document.getElementById("scorecardGrowthList");
+            growthList.innerHTML = "";
+            const growths = scorecard.growth_areas || [];
+            if (growths.length > 0) {
+                growths.forEach(g => {
+                    const li = document.createElement("li");
+                    li.innerText = g;
+                    growthList.appendChild(li);
+                });
+            } else {
+                growthList.innerHTML = "<li>Continue hands-on system architecture practice.</li>";
+            }
+
+            // Executive Summary
+            const execSummary = document.getElementById("scorecardExecutiveSummary");
+            execSummary.innerText = scorecard.executive_summary || "Candidate showed solid alignment with requirements.";
+
+            // Questions Accordion Cards with Benchmark Right Answers
+            const container = document.getElementById("scorecardQuestionsContainer");
+            if (container) {
+                container.innerHTML = "";
+                const activeRecords = (records && records.length > 0) ? records : (latestRecords || []);
+                if (activeRecords && activeRecords.length > 0) {
+                    activeRecords.forEach(r => {
+                        const card = document.createElement("div");
+                        card.className = "border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900 shadow-sm transition";
+
+                        const scoreColor = r.score >= 8
+                            ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700"
+                            : (r.score >= 6
+                                ? "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300 border-blue-300 dark:border-blue-700"
+                                : "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border-amber-300 dark:border-amber-700");
+
+                        const qNum = r.question_number;
+                        const topic = r.topic || `Question ${qNum}`;
+                        const qText = r.question_text || `Question ${qNum} on ${topic}`;
+                        const cAns = r.candidate_answer || "No response recorded or question skipped.";
+                        const idealAns = r.ideal_answer || "Benchmark right answer is being generated or was skipped.";
+                        const notes = r.notes || "Evaluated by committee.";
+
+                        card.innerHTML = `
+                            <button
+                                type="button"
+                                onclick="toggleQuestionAccordion(${qNum})"
+                                class="w-full p-3.5 flex items-center justify-between text-left hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer gap-3"
+                            >
+                                <div class="flex items-center gap-2.5 min-w-0">
+                                    <span class="w-7 h-7 rounded-lg bg-blue-600 text-white font-mono font-bold text-xs flex items-center justify-center shrink-0 shadow-sm">
+                                        Q${qNum}
+                                    </span>
+                                    <div class="min-w-0">
+                                        <div class="text-xs font-bold text-slate-900 dark:text-white truncate">${escapeHtml(topic)}</div>
+                                        <div class="text-[11px] text-slate-500 dark:text-slate-400 truncate max-w-md">${escapeHtml(qText)}</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2.5 shrink-0">
+                                    <span class="px-2 py-0.5 rounded-full text-[11px] font-bold border ${scoreColor}">
+                                        ${r.score}/10
+                                    </span>
+                                    <span class="text-xs text-blue-600 dark:text-blue-400 font-semibold hidden sm:inline flex items-center gap-1">
+                                        <span>Check Right Answer</span>
+                                    </span>
+                                    <i id="accordionIcon-${qNum}" class="fa-solid fa-chevron-down text-xs text-slate-400 transition-transform duration-200"></i>
+                                </div>
+                            </button>
+                            <div id="accordionContent-${qNum}" class="hidden p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20 space-y-3.5 text-xs">
+                                <!-- Question Text -->
+                                <div class="p-3 rounded-lg bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700">
+                                    <span class="font-bold text-slate-700 dark:text-slate-200 block mb-1 text-[11px] uppercase tracking-wider flex items-center gap-1.5">
+                                        <i class="fa-regular fa-circle-question text-blue-600 dark:text-blue-400"></i> Question Asked
+                                    </span>
+                                    <p class="text-slate-800 dark:text-slate-200 leading-relaxed font-medium">${escapeHtml(qText)}</p>
+                                </div>
+
+                                <!-- User's Answer -->
+                                <div class="p-3 rounded-lg bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <span class="font-bold text-slate-700 dark:text-slate-200 text-[11px] uppercase tracking-wider flex items-center gap-1.5">
+                                            <i class="fa-regular fa-user text-indigo-600 dark:text-indigo-400"></i> Your Answer
+                                        </span>
+                                        <span class="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Score: <strong class="text-slate-800 dark:text-slate-200">${r.score}/10</strong></span>
+                                    </div>
+                                    <div class="text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">${escapeHtml(cAns)}</div>
+                                    <div class="mt-2 pt-2 border-t border-slate-100 dark:border-slate-700/60 text-[11px] text-slate-500 dark:text-slate-400">
+                                        <strong class="text-slate-700 dark:text-slate-300">Feedback:</strong> ${escapeHtml(notes)}
+                                    </div>
+                                </div>
+
+                                <!-- Benchmark Ideal Answer -->
+                                <div class="p-3.5 rounded-lg bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-300 dark:border-emerald-800">
+                                    <div class="flex items-center gap-1.5 mb-1.5 text-emerald-800 dark:text-emerald-300">
+                                        <i class="fa-solid fa-circle-check text-xs text-emerald-600 dark:text-emerald-400"></i>
+                                        <span class="font-bold text-[11px] uppercase tracking-wider">Benchmark Right Answer</span>
+                                        <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-200/70 dark:bg-emerald-900/80 text-emerald-900 dark:text-emerald-200 font-semibold ml-auto">Expected Solution</span>
+                                    </div>
+                                    <div class="text-slate-800 dark:text-slate-200 leading-relaxed chat-content">
+                                        ${renderMarkdown(idealAns)}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        container.appendChild(card);
+                    });
+                } else {
+                    container.innerHTML = `
+                        <div class="p-6 text-center text-xs text-slate-400 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-800">
+                            No evaluated questions recorded yet. Complete questions in the interview to view answers and feedback.
+                        </div>
+                    `;
+                }
+            }
+
+            // Make navbar & sidebar buttons visible
+            const navBtn = document.getElementById("openScorecardNavBtn");
+            if (navBtn) {
+                navBtn.classList.remove("hidden");
+                navBtn.classList.add("flex");
+            }
+            const sideBtn = document.getElementById("sidebarScorecardBtn");
+            if (sideBtn) {
+                sideBtn.classList.remove("hidden");
+                sideBtn.classList.add("flex");
+            }
+        }
+
+        function toggleQuestionAccordion(qNum) {
+            const content = document.getElementById(`accordionContent-${qNum}`);
+            const icon = document.getElementById(`accordionIcon-${qNum}`);
+            if (!content) return;
+            const isHidden = content.classList.contains("hidden");
+            if (isHidden) {
+                content.classList.remove("hidden");
+                if (icon) icon.classList.add("rotate-180");
+            } else {
+                content.classList.add("hidden");
+                if (icon) icon.classList.remove("rotate-180");
+            }
+        }
+
+        let allAnswersExpanded = false;
+        function toggleAllAnswersAccordion() {
+            allAnswersExpanded = !allAnswersExpanded;
+            const container = document.getElementById("scorecardQuestionsContainer");
+            if (!container) return;
+            const contents = container.querySelectorAll('[id^="accordionContent-"]');
+            const icons = container.querySelectorAll('[id^="accordionIcon-"]');
+            contents.forEach(c => {
+                if (allAnswersExpanded) c.classList.remove("hidden");
+                else c.classList.add("hidden");
+            });
+            icons.forEach(ic => {
+                if (allAnswersExpanded) ic.classList.add("rotate-180");
+                else ic.classList.remove("rotate-180");
+            });
+            const text = document.getElementById("toggleAllAnswersText");
+            const icon = document.getElementById("toggleAllAnswersIcon");
+            if (text) text.innerText = allAnswersExpanded ? "Collapse All" : "Expand All";
+            if (icon) icon.className = allAnswersExpanded ? "fa-solid fa-angles-up text-[10px]" : "fa-solid fa-angles-down text-[10px]";
+        }
+
+        function copyScorecardSummary() {
+            if (!latestScorecard) return;
+            let text = `Vettora Interview Assessment: ${candidateName}
+Target Role: ${targetRole}
+Verdict: ${latestScorecard.verdict || 'N/A'}
+Overall Score: ${latestScorecard.overall_score || 'N/A'}/100
+Summary: ${latestScorecard.executive_summary || 'N/A'}`;
+
+            if (latestRecords && latestRecords.length > 0) {
+                text += `\n\n--- QUESTION & ANSWER BREAKDOWN ---\n`;
+                latestRecords.forEach(r => {
+                    text += `\n[Q${r.question_number}: ${r.topic || 'Technical'}] (Score: ${r.score}/10)\n`;
+                    if (r.question_text) text += `Question: ${r.question_text}\n`;
+                    if (r.candidate_answer) text += `Your Answer: ${r.candidate_answer}\n`;
+                    if (r.ideal_answer) text += `Benchmark Right Answer: ${r.ideal_answer}\n`;
+                    if (r.notes) text += `Notes: ${r.notes}\n`;
+                });
+            }
+
+            navigator.clipboard.writeText(text).then(() => {
+                alert("Scorecard summary & answers copied to clipboard!");
+            });
+        }
+
+        function fillPrompt(text) {
+            const input = document.getElementById("userInput");
+            input.value = text;
+            input.focus();
+        }
+
+        function updateJdBadge(isCustom) {
+            const badge = document.getElementById("jdStatusBadge");
+            if (!badge) return;
+            if (isCustom) {
+                badge.innerText = "Custom JD Active";
+                badge.className = "text-[11px] text-emerald-600 font-bold";
+            } else {
+                badge.innerText = "Template Active";
+                badge.className = "text-[11px] text-blue-600 font-semibold";
+            }
+        }
+
+        // Load Job Description Templates from API
+        async function fetchJobTemplates() {
+            try {
+                const res = await fetch("/api/job-descriptions/");
+                const data = await res.json();
+                if (data.success && data.templates) {
+                    jobTemplates = data.templates;
+
+                    const jdInput = document.getElementById("modalJobDescription");
+                    const roleInput = document.getElementById("modalTargetRole");
+                    const select = document.getElementById("jdTemplateSelect");
+
+                    // ONLY pre-populate if textarea is currently empty and dropdown isn't custom
+                    if (jdInput && !jdInput.value.trim() && select && select.value !== "custom") {
+                        const defaultRole = roleInput ? roleInput.value.trim() : "Full Stack Software Engineer";
+                        if (jobTemplates[defaultRole]) {
+                            jdInput.value = jobTemplates[defaultRole];
+                            select.value = defaultRole;
+                            updateJdBadge(false);
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error("Failed to load job templates", e);
+            }
+        }
+
+        // Handle Job Description Template Change
+        function handleJdTemplateChange(event) {
+            const selected = event.target.value;
+            const jdInput = document.getElementById("modalJobDescription");
+            const roleInput = document.getElementById("modalTargetRole");
+
+            if (selected === "custom") {
+                updateJdBadge(true);
+                // Do NOT erase any existing text; set helpful placeholder and focus
+                jdInput.placeholder = "Paste or write custom job requirements, tech stack, and responsibilities...";
+                jdInput.focus();
+            } else if (jobTemplates[selected]) {
+                jdInput.value = jobTemplates[selected];
+                if (roleInput) roleInput.value = selected;
+                updateJdBadge(false);
+            }
+        }
+
+        // Handle Resume File Upload & Parsing
+        async function handleResumeFileChange(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const badge = document.getElementById("resumeStatusBadge");
+            badge.innerText = "Parsing file...";
+            badge.className = "text-[11px] text-blue-600 font-semibold animate-pulse";
+
+            const formData = new FormData();
+            formData.append("resume_file", file);
+
+            try {
+                const res = await fetch("/api/upload-resume/", {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": getCsrfToken()
+                    },
+                    body: formData
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById("modalResumeText").value = data.extracted_text;
+                    document.getElementById("resumePreviewContainer").classList.remove("hidden");
+                    document.getElementById("resumeParsedFileName").innerText = `${data.filename} (${data.character_count} chars)`;
+                    badge.innerText = "Uploaded & Parsed";
+                    badge.className = "text-[11px] text-emerald-600 font-bold";
+                    const quickBtn = document.getElementById("quickDetachBtn");
+                    if (quickBtn) {
+                        quickBtn.classList.remove("hidden");
+                        quickBtn.classList.add("inline-flex");
+                    }
+                } else {
+                    badge.innerText = "Parse Error";
+                    badge.className = "text-[11px] text-red-500 font-semibold";
+                    alert("Resume parsing failed: " + (data.error || "Unknown error"));
+                }
+            } catch (err) {
+                badge.innerText = "Upload Error";
+                badge.className = "text-[11px] text-red-500 font-semibold";
+                alert("Upload failed: " + err.message);
+            }
+        }
+
+        // Detach / remove the uploaded resume
+        function detachResume() {
+            const fileInput = document.getElementById("resumeFileInput");
+            if (fileInput) fileInput.value = "";
+
+            const resumeText = document.getElementById("modalResumeText");
+            if (resumeText) resumeText.value = "";
+
+            const previewContainer = document.getElementById("resumePreviewContainer");
+            if (previewContainer) previewContainer.classList.add("hidden");
+
+            const badge = document.getElementById("resumeStatusBadge");
+            if (badge) {
+                badge.innerText = "Optional";
+                badge.className = "text-[11px] text-slate-500 font-medium";
+            }
+
+            const quickBtn = document.getElementById("quickDetachBtn");
+            if (quickBtn) {
+                quickBtn.classList.add("hidden");
+                quickBtn.classList.remove("inline-flex");
+            }
+
+            const fileNameEl = document.getElementById("resumeParsedFileName");
+            if (fileNameEl) fileNameEl.innerText = "Resume text extracted";
+        }
+
+        function toggleResumePreview() {
+            const textarea = document.getElementById("modalResumeText");
+            textarea.classList.toggle("hidden");
+        }
+
+        // Append Message
+        function appendMessage(sender, agentName, text, isEvaluation = false) {
+            const container = document.getElementById("messagesContainer");
+            const isUser = sender === "user";
+
+            const msgWrapper = document.createElement("div");
+            msgWrapper.className = `flex flex-col ${isUser ? "items-end" : "items-start"} space-y-1 w-full`;
+
+            // Sender name & time
+            const meta = document.createElement("div");
+            meta.className = "flex items-center space-x-1.5 text-[11px] text-slate-400 px-1";
+            meta.innerHTML = `<span>${isUser ? candidateName : agentName}</span>`;
+            msgWrapper.appendChild(meta);
+
+            // Message Bubble
+            const bubble = document.createElement("div");
+            if (isUser) {
+                bubble.className = "max-w-[85%] sm:max-w-[75%] bg-blue-600 text-white px-4 py-2.5 rounded-xl rounded-tr-none text-sm leading-relaxed whitespace-pre-wrap";
+                bubble.innerText = text;
+            } else if (isEvaluation) {
+                bubble.className = "max-w-[95%] sm:max-w-[90%] bg-white dark:bg-slate-900 border-2 border-amber-400 dark:border-amber-500 rounded-xl p-5 shadow-sm text-sm leading-relaxed chat-content";
+                bubble.innerHTML = `
+                    <div class="flex items-center justify-between pb-3 mb-3 border-b border-amber-200 dark:border-amber-800">
+                        <span class="text-xs font-bold text-amber-700 dark:text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
+                            <i class="fa-solid fa-square-poll-vertical"></i> Official Assessment Report
+                        </span>
+                        <button type="button" onclick="openScorecardModal()" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg transition inline-flex items-center space-x-1.5 shadow-sm cursor-pointer">
+                            <i class="fa-solid fa-square-poll-vertical text-xs"></i>
+                            <span>Open Scorecard Modal</span>
+                        </button>
+                    </div>
+                    ${renderMarkdown(text)}
+                `;
+            } else {
+                bubble.className = "max-w-[90%] sm:max-w-[80%] bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-xl rounded-tl-none px-4 py-3 text-sm leading-relaxed chat-content border border-slate-200 dark:border-slate-700/60";
+                bubble.innerHTML = renderMarkdown(text);
+            }
+
+            msgWrapper.appendChild(bubble);
+            container.appendChild(msgWrapper);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // Update Scorecard
+        function updateScorecard(records) {
+            const list = document.getElementById("scorecardList");
+            const emptyMsg = document.getElementById("emptyScorecardMsg");
+            const progressBar = document.getElementById("progressBar");
+            const progressRatio = document.getElementById("progressRatio");
+
+            const count = records ? records.length : 0;
+            progressRatio.innerText = `${count} / ${numQuestions}`;
+            const pct = Math.min(100, Math.round((count / numQuestions) * 100));
+            progressBar.style.width = `${pct}%`;
+
+            if (count > 0 && emptyMsg) emptyMsg.remove();
+            if (!records || records.length === 0) return;
+
+            list.innerHTML = "";
+            records.forEach(r => {
+                const card = document.createElement("div");
+                card.className = "p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs flex flex-col space-y-1";
+                card.innerHTML = `
+                    <div class="flex items-center justify-between font-medium">
+                        <span class="truncate">Q${r.question_number}: ${r.topic}</span>
+                        <span class="font-mono text-blue-600 dark:text-blue-400 font-bold">${r.score}/10</span>
+                    </div>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 truncate">${r.notes || "Evaluated."}</p>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        // Start Interview
+        async function handleStartInterview(event) {
+            event.preventDefault();
+            const startBtn = document.getElementById("startModalBtn");
+            startBtn.disabled = true;
+            startBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-xs"></i><span>Starting...</span>`;
+
+            candidateName = document.getElementById("modalCandidateName").value.trim() || "Candidate";
+            targetRole = document.getElementById("modalTargetRole").value.trim() || "Full Stack Software Engineer";
+            numQuestions = parseInt(document.getElementById("modalNumQuestions").value) || 4;
+
+            const resumeText = document.getElementById("modalResumeText").value.trim();
+            const jobDescription = document.getElementById("modalJobDescription").value.trim();
+
+            document.getElementById("displayCandidateName").innerText = candidateName;
+            document.getElementById("candidateAvatar").innerText = candidateName.charAt(0).toUpperCase();
+            document.getElementById("displayRole").innerText = targetRole;
+
+            document.getElementById("sidebarResumeStatus").innerText = resumeText ? "Attached" : "None";
+            document.getElementById("sidebarResumeStatus").className = resumeText ? "font-medium px-2 py-0.5 rounded text-[11px] bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400" : "font-medium px-2 py-0.5 rounded text-[11px] bg-slate-100 dark:bg-slate-800 text-slate-400";
+
+            document.getElementById("sidebarJdStatus").innerText = jobDescription ? "Attached" : "None";
+            document.getElementById("sidebarJdStatus").className = jobDescription ? "font-medium px-2 py-0.5 rounded text-[11px] bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400" : "font-medium px-2 py-0.5 rounded text-[11px] bg-slate-100 dark:bg-slate-800 text-slate-400";
+
+            document.getElementById("chatContextSummary").innerText = `${resumeText ? "Resume Loaded" : "No Resume"} | ${jobDescription ? "JD Loaded" : "No JD"}`;
+
+            document.getElementById("messagesContainer").innerHTML = "";
+            latestScorecard = null;
+            latestRecords = [];
+            const suggestionsStrip = document.getElementById("quickSuggestionsStrip");
+            if (suggestionsStrip) suggestionsStrip.classList.remove("hidden");
+            const skipBtn = document.getElementById("skipBtn");
+            if (skipBtn) {
+                skipBtn.classList.remove("hidden");
+                skipBtn.disabled = false;
+            }
+            document.getElementById("scorecardList").innerHTML = `
+                <div id="emptyScorecardMsg" class="py-8 text-center text-xs text-slate-400">
+                    Evaluations will appear here as you answer questions.
+                </div>
+            `;
+            document.getElementById("progressBar").style.width = "0%";
+            document.getElementById("progressRatio").innerText = `0 / ${numQuestions}`;
+            document.getElementById("interviewStatusText").innerText = "In Progress";
+            document.getElementById("interviewStatusText").className = "font-medium text-emerald-600 dark:text-emerald-400";
+
+            try {
+                const res = await fetch("/api/start/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": getCsrfToken()
+                    },
+                    body: JSON.stringify({
+                        candidate_name: candidateName,
+                        target_role: targetRole,
+                        num_questions: numQuestions,
+                        resume_text: resumeText,
+                        job_description: jobDescription
+                    })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    appendMessage("agent", data.agent_name, data.message);
+                    document.getElementById("currentAgentBadge").innerText = data.agent_name;
+                    closeSetupModal();
+                    startTimer();
+                    fetchHistorySessions();
+                } else {
+                    alert("Error starting interview: " + (data.error || "Unknown error"));
+                }
+            } catch (err) {
+                alert("Network error: " + err.message);
+            } finally {
+                startBtn.disabled = false;
+                startBtn.innerHTML = `<i class="fa-solid fa-play text-xs"></i><span>Start Grounded Interview</span>`;
+            }
+        }
+
+        // Send Message
+        async function handleSendMessage(event) {
+            if (event) event.preventDefault();
+            if (isProcessing) return;
+
+            const input = document.getElementById("userInput");
+            const text = input.value.trim();
+            if (!text) return;
+
+            input.value = "";
+            appendMessage("user", candidateName, text);
+
+            isProcessing = true;
+            document.getElementById("sendBtn").disabled = true;
+            const skipBtn = document.getElementById("skipBtn");
+            if (skipBtn) skipBtn.disabled = true;
+            document.getElementById("typingIndicator").classList.remove("hidden");
+
+            try {
+                const res = await fetch("/api/chat/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": getCsrfToken()
+                    },
+                    body: JSON.stringify({ message: text })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    const isEval = data.is_completed || data.agent_name === "EvaluatorAgent";
+                    appendMessage("agent", data.agent_name, data.message, isEval);
+                    document.getElementById("currentAgentBadge").innerText = data.agent_name;
+
+                    if (data.records) updateScorecard(data.records);
+
+                    if (isEval) {
+                        stopTimer();
+                        document.getElementById("interviewStatusText").innerText = "Completed";
+                        const suggestionsStrip = document.getElementById("quickSuggestionsStrip");
+                        if (suggestionsStrip) suggestionsStrip.classList.add("hidden");
+                        if (skipBtn) skipBtn.classList.add("hidden");
+                        if (data.scorecard && Object.keys(data.scorecard).length > 0) {
+                            populateScorecardModal(data.scorecard, data.records);
+                            openScorecardModal();
+                        }
+                    }
+                } else {
+                    appendMessage("agent", "System Error", "Error: " + (data.error || data.detail || "Something went wrong."));
+                }
+            } catch (err) {
+                appendMessage("agent", "Network Error", "Error: " + err.message);
+            } finally {
+                isProcessing = false;
+                document.getElementById("sendBtn").disabled = false;
+                if (skipBtn) skipBtn.disabled = false;
+                document.getElementById("typingIndicator").classList.add("hidden");
+                input.focus();
+            }
+        }
+
+        // Finish Interview
+        async function finishInterview() {
+            if (isProcessing) return;
+            if (!confirm("Are you ready to end the interview and generate your evaluation report based on your resume, job description, and answers?")) return;
+
+            isProcessing = true;
+            document.getElementById("sendBtn").disabled = true;
+            document.getElementById("finishBtn").disabled = true;
+            const skipBtn = document.getElementById("skipBtn");
+            if (skipBtn) skipBtn.disabled = true;
+            document.getElementById("typingIndicator").classList.remove("hidden");
+            document.getElementById("typingAgentName").innerText = "Evaluator is preparing your report";
+
+            try {
+                const res = await fetch("/api/finish/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": getCsrfToken()
+                    }
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    appendMessage("agent", data.agent_name, data.message, true);
+                    document.getElementById("currentAgentBadge").innerText = data.agent_name;
+                    stopTimer();
+                    document.getElementById("interviewStatusText").innerText = "Completed";
+                    const suggestionsStrip = document.getElementById("quickSuggestionsStrip");
+                    if (suggestionsStrip) suggestionsStrip.classList.add("hidden");
+                    if (skipBtn) skipBtn.classList.add("hidden");
+                    if (data.records) updateScorecard(data.records);
+                    if (data.scorecard && Object.keys(data.scorecard).length > 0) {
+                        populateScorecardModal(data.scorecard, data.records);
+                        openScorecardModal();
+                    }
+                    fetchHistorySessions();
+                } else {
+                    alert("Error: " + (data.error || data.detail || "Could not finish interview."));
+                }
+            } catch (err) {
+                alert("Network error: " + err.message);
+            } finally {
+                isProcessing = false;
+                document.getElementById("sendBtn").disabled = false;
+                document.getElementById("finishBtn").disabled = false;
+                if (skipBtn) skipBtn.disabled = false;
+                document.getElementById("typingIndicator").classList.add("hidden");
+            }
+        }
+
+        // Enter key to send (Shift + Enter for newline)
+        function handleKeyDown(event) {
+            if (event.key === "Enter" && !event.shiftKey) {
+                event.preventDefault();
+                handleSendMessage();
+            }
+        }
+
+        // Initial Load
+        window.addEventListener("DOMContentLoaded", async () => {
+            initTheme();
+            await fetchJobTemplates();
+
+            const resumeTextEl = document.getElementById("modalResumeText");
+            if (resumeTextEl) {
+                resumeTextEl.addEventListener("input", (e) => {
+                    const badge = document.getElementById("resumeStatusBadge");
+                    const quickBtn = document.getElementById("quickDetachBtn");
+                    if (e.target.value.trim().length > 0) {
+                        if (badge) {
+                            badge.innerText = "Text Attached";
+                            badge.className = "text-[11px] text-emerald-600 font-bold";
+                        }
+                        if (quickBtn) {
+                            quickBtn.classList.remove("hidden");
+                            quickBtn.classList.add("inline-flex");
+                        }
+                    } else {
+                        if (badge) {
+                            badge.innerText = "Optional";
+                            badge.className = "text-[11px] text-slate-500 font-medium";
+                        }
+                        if (quickBtn) {
+                            quickBtn.classList.add("hidden");
+                            quickBtn.classList.remove("inline-flex");
+                        }
+                    }
+                });
+            }
+
+            // Sync custom JD textarea with dropdown
+            const jdInputEl = document.getElementById("modalJobDescription");
+            if (jdInputEl) {
+                jdInputEl.addEventListener("input", (e) => {
+                    const select = document.getElementById("jdTemplateSelect");
+                    const currentVal = e.target.value.trim();
+                    if (select) {
+                        if (jobTemplates[select.value] && jobTemplates[select.value].trim() !== currentVal) {
+                            select.value = "custom";
+                            updateJdBadge(true);
+                        } else if (select.value === "custom") {
+                            updateJdBadge(true);
+                        }
+                    }
+                });
+            }
+
+            // Sync Target Role with template or switch to custom
+            const roleInputEl = document.getElementById("modalTargetRole");
+            if (roleInputEl) {
+                roleInputEl.addEventListener("input", (e) => {
+                    const role = e.target.value.trim();
+                    const select = document.getElementById("jdTemplateSelect");
+                    const jdInput = document.getElementById("modalJobDescription");
+                    if (jobTemplates[role]) {
+                        if (select) select.value = role;
+                        if (jdInput && !jdInput.value.trim()) jdInput.value = jobTemplates[role];
+                        updateJdBadge(false);
+                    } else {
+                        if (select) select.value = "custom";
+                        updateJdBadge(true);
+                    }
+                });
+            }
+
+            try {
+                const res = await fetch("/api/status/");
+                const data = await res.json();
+                if (data.has_active_session) {
+                    closeSetupModal();
+                    candidateName = data.candidate_name;
+                    targetRole = data.target_role;
+                    numQuestions = data.num_questions;
+
+                    document.getElementById("displayCandidateName").innerText = candidateName;
+                    document.getElementById("candidateAvatar").innerText = candidateName.charAt(0).toUpperCase();
+                    document.getElementById("displayRole").innerText = targetRole;
+                    document.getElementById("currentAgentBadge").innerText = data.current_agent;
+
+                    document.getElementById("sidebarResumeStatus").innerText = data.resume_loaded ? "Attached" : "None";
+                    document.getElementById("sidebarResumeStatus").className = data.resume_loaded ? "font-medium px-2 py-0.5 rounded text-[11px] bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400" : "font-medium px-2 py-0.5 rounded text-[11px] bg-slate-100 dark:bg-slate-800 text-slate-400";
+
+                    document.getElementById("sidebarJdStatus").innerText = data.jd_loaded ? "Attached" : "None";
+                    document.getElementById("sidebarJdStatus").className = data.jd_loaded ? "font-medium px-2 py-0.5 rounded text-[11px] bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400" : "font-medium px-2 py-0.5 rounded text-[11px] bg-slate-100 dark:bg-slate-800 text-slate-400";
+
+                    document.getElementById("chatContextSummary").innerText = `${data.resume_loaded ? "Resume Loaded" : "No Resume"} | ${data.jd_loaded ? "JD Loaded" : "No JD"}`;
+
+                    if (data.messages && data.messages.length > 0) {
+                        data.messages.forEach(m => {
+                            appendMessage(m.sender, m.agent_name, m.text, m.agent_name === "EvaluatorAgent");
+                        });
+                    }
+                    if (data.records) updateScorecard(data.records);
+                    if (data.scorecard && (data.is_completed || Object.keys(data.scorecard).length > 0)) {
+                        populateScorecardModal(data.scorecard, data.records);
+                    }
+
+                    const skipBtn = document.getElementById("skipBtn");
+                    if (data.is_completed) {
+                        stopTimer();
+                        document.getElementById("interviewStatusText").innerText = "Completed";
+                        const suggestionsStrip = document.getElementById("quickSuggestionsStrip");
+                        if (suggestionsStrip) suggestionsStrip.classList.add("hidden");
+                        if (skipBtn) skipBtn.classList.add("hidden");
+                    } else {
+                        startTimer();
+                        const suggestionsStrip = document.getElementById("quickSuggestionsStrip");
+                        if (suggestionsStrip) suggestionsStrip.classList.remove("hidden");
+                        if (skipBtn) skipBtn.classList.remove("hidden");
+                    }
+                } else {
+                    openSetupModal();
+                }
+            } catch (e) {
+                openSetupModal();
+            } finally {
+                fetchHistorySessions();
+            }
+        });
+    </script>
+</body>
+</html>
